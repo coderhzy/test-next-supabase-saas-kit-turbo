@@ -14,14 +14,26 @@ const MAX_AGE = 60;
 const S_MAX_AGE = 3600;
 
 export async function GET() {
-  const paths = getPaths();
-  const contentItems = await getContentItems();
+  try {
+    const paths = getPaths();
+    const contentItems = await getContentItems();
 
-  const headers = {
-    'Cache-Control': `public, max-age=${MAX_AGE}, s-maxage=${S_MAX_AGE}`,
-  };
+    const headers = {
+      'Cache-Control': `public, max-age=${MAX_AGE}, s-maxage=${S_MAX_AGE}`,
+    };
 
-  return getServerSideSitemap([...paths, ...contentItems], headers);
+    return getServerSideSitemap([...paths, ...contentItems], headers);
+  } catch (error) {
+    console.error('Error generating sitemap:', error);
+
+    // 返回一个基本的sitemap，只包含静态路径
+    const basicPaths = getPaths();
+    const headers = {
+      'Cache-Control': `public, max-age=${MAX_AGE}, s-maxage=${S_MAX_AGE}`,
+    };
+
+    return getServerSideSitemap(basicPaths, headers);
+  }
 }
 
 function getPaths() {
@@ -47,41 +59,56 @@ function getPaths() {
 }
 
 async function getContentItems() {
-  const client = await createCmsClient();
+  try {
+    const client = await createCmsClient();
 
-  // do not paginate the content items
-  const limit = Infinity;
-  const posts = client
-    .getContentItems({
-      collection: 'posts',
-      content: false,
-      limit,
-    })
-    .then((response) => response.items)
-    .then((posts) =>
-      posts.map((post) => ({
-        loc: new URL(`/blog/${post.slug}`, appConfig.url).href,
-        lastmod: post.publishedAt
-          ? new Date(post.publishedAt).toISOString()
-          : new Date().toISOString(),
-      })),
-    );
+    // we use a safe, large number to avoid paginating the content items
+    const limit = 1000;
 
-  const docs = client
-    .getContentItems({
-      collection: 'documentation',
-      content: false,
-      limit,
-    })
-    .then((response) => response.items)
-    .then((docs) =>
-      docs.map((doc) => ({
-        loc: new URL(`/docs/${doc.slug}`, appConfig.url).href,
-        lastmod: doc.publishedAt
-          ? new Date(doc.publishedAt).toISOString()
-          : new Date().toISOString(),
-      })),
-    );
+    const postsPromise = client
+      .getContentItems({
+        collection: 'posts',
+        content: false,
+        limit,
+      })
+      .then((response) => response.items)
+      .then((posts) =>
+        posts.map((post) => ({
+          loc: new URL(`/blog/${post.slug}`, appConfig.url).href,
+          lastmod: post.publishedAt
+            ? new Date(post.publishedAt).toISOString()
+            : new Date().toISOString(),
+        })),
+      )
+      .catch((error) => {
+        console.error('Error fetching posts for sitemap:', error);
+        return [];
+      });
 
-  return Promise.all([posts, docs]).then((items) => items.flat());
+    const docsPromise = client
+      .getContentItems({
+        collection: 'documentation',
+        content: false,
+        limit,
+      })
+      .then((response) => response.items)
+      .then((docs) =>
+        docs.map((doc) => ({
+          loc: new URL(`/docs/${doc.slug}`, appConfig.url).href,
+          lastmod: doc.publishedAt
+            ? new Date(doc.publishedAt).toISOString()
+            : new Date().toISOString(),
+        })),
+      )
+      .catch((error) => {
+        console.error('Error fetching docs for sitemap:', error);
+        return [];
+      });
+
+    const [posts, docs] = await Promise.all([postsPromise, docsPromise]);
+    return [...posts, ...docs];
+  } catch (error) {
+    console.error('Error creating CMS client for sitemap:', error);
+    return [];
+  }
 }
