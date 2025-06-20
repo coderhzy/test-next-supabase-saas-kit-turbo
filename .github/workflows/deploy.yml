@@ -29,9 +29,13 @@ jobs:
       - name: Create Production .env file
         run: |
           echo "NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}" >> ./apps/web/.env.production
-          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> ./apps/web/.env.production
-          # ... 在这里添加所有生产环境需要的环境变量
-          # 确保在 GitHub Secrets 中也创建了这些变量
+          echo "NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}" >> ./apps/web/.env.production
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" >> ./apps/web/.env.production
+          echo "SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" >> ./apps/web/.env.production
+          echo "MAILER_PROVIDER=${{ secrets.MAILER_PROVIDER }}" >> ./apps/web/.env.production
+          echo "RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}" >> ./apps/web/.env.production
+          echo "EMAIL_SENDER=${{ secrets.EMAIL_SENDER }}" >> ./apps/web/.env.production
+          # Add any other required production environment variables here
           
       - name: Build the application
         run: pnpm --filter web build
