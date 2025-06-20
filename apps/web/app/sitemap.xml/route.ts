@@ -50,12 +50,23 @@ function getPaths() {
     // add more paths here
   ];
 
-  return paths.map((path) => {
-    return {
-      loc: new URL(path, appConfig.url).href,
-      lastmod: new Date().toISOString(),
-    };
-  });
+  try {
+    return paths.map((path) => {
+      return {
+        loc: new URL(path, appConfig.url).href,
+        lastmod: new Date().toISOString(),
+      };
+    });
+  } catch (e) {
+    console.error(
+      `[Sitemap Generation Error] Failed to create a valid URL. This is likely because the NEXT_PUBLIC_SITE_URL environment variable is misconfigured.`,
+    );
+    console.error(`The invalid URL base provided was: "${appConfig.url}"`);
+    console.error('The original error was:', e);
+
+    // Re-throw the error to ensure the build fails, but with better logs
+    throw e;
+  }
 }
 
 async function getContentItems() {
