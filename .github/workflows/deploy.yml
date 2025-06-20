@@ -1,0 +1,63 @@
+name: Deploy to Alibaba Cloud
+
+on:
+  push:
+    branches:
+      - master  # 当代码推送到 master 分支时触发
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8 # 或者您使用的pnpm版本
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Create Production .env file
+        run: |
+          echo "NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}" >> ./apps/web/.env.production
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> ./apps/web/.env.production
+          # ... 在这里添加所有生产环境需要的环境变量
+          # 确保在 GitHub Secrets 中也创建了这些变量
+          
+      - name: Build the application
+        run: pnpm --filter web build
+
+      - name: Deploy to Server via rsync
+        uses: burnett01/rsync-deployments@6.0.0
+        with:
+          switches: -avzr --delete
+          path: |
+            apps/web/.next
+            apps/web/public
+            node_modules
+            package.json
+            pnpm-lock.yaml
+          remote_path: /home/deployer/your-app/ # 服务器上存放应用的目录
+          remote_host: ${{ secrets.SSH_HOST }}
+          remote_user: ${{ secrets.SSH_USER }}
+          remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Restart application on server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/deployer/your-app
+            pnpm install --prod # 只需要安装生产依赖
+            pm2 restart web --update-env || pm2 start "pnpm --filter web start" --name web --update-env

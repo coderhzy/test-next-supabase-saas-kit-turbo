@@ -1,0 +1,120 @@
+{
+  "subscriptionTabSubheading": "管理您的订阅和账单",
+  "planCardTitle": "您的计划",
+  "planCardDescription": "以下是您当前计划的详细信息。您可以随时更改计划或取消订阅。",
+  "planRenewal": "每 {{interval}} 续订一次，价格为 {{price}}",
+  "planDetails": "计划详情",
+  "checkout": "前往结账",
+  "trialEndsOn": "您的试用期将于",
+  "billingPortalCardButton": "访问账单门户",
+  "billingPortalCardTitle": "管理您的账单详情",
+  "billingPortalCardDescription": "访问您的账单门户以管理您的订阅和账单。您可以更新或取消您的计划，或下载您的发票。",
+  "cancelAtPeriodEndDescription": "您的订阅计划将于 {{- endDate }} 取消。",
+  "renewAtPeriodEndDescription": "您的订阅计划将于 {{- endDate }} 续订。",
+  "noPermissionsAlertHeading": "您没有权限更改账单设置",
+  "noPermissionsAlertBody": "请联系您的账户所有者以更改您账户的账单设置。",
+  "checkoutSuccessTitle": "完成！一切就绪。",
+  "checkoutSuccessDescription": "感谢您的订阅，我们已成功处理您的订阅！一封确认邮件将发送至 {{ customerEmail }}。",
+  "checkoutSuccessBackButton": "前往应用",
+  "cannotManageBillingAlertTitle": "您无法管理账单",
+  "cannotManageBillingAlertDescription": "您没有权限管理账单。请联系您的账户所有者。",
+  "manageTeamPlan": "管理您的团队计划",
+  "manageTeamPlanDescription": "选择一个适合您团队需求的计划。您可以随时升级或降级您的计划。",
+  "basePlan": "基础计划",
+  "billingInterval": {
+    "label": "选择您的账单周期",
+    "month": "按月计费",
+    "year": "按年计费"
+  },
+  "perMonth": "月",
+  "custom": "自定义计划",
+  "lifetime": "终身",
+  "trialPeriod": "{{period}} 天试用",
+  "perPeriod": "每 {{period}}",
+  "redirectingToPayment": "正在重定向到结账页面。请稍候...",
+  "proceedToPayment": "前往支付",
+  "startTrial": "开始试用",
+  "perTeamMember": "每位团队成员",
+  "perUnit": "每 {{unit}} 使用量",
+  "teamMembers": "团队成员",
+  "includedUpTo": "计划中包含最多 {{upTo}} {{unit}}",
+  "fromPreviousTierUpTo": "对于接下来的 {{ upTo }} {{ unit }}，每个 {{unit}}",
+  "andAbove": "超过 {{ previousTier }} {{ unit }}",
+  "startingAtPriceUnit": "起价 {{price}}/{{unit}}",
+  "priceUnit": "{{price}}/{{unit}}",
+  "forEveryUnit": "对于每个 {{ unit }}",
+  "setupFee": "外加 {{ setupFee }} 的设置费",
+  "perUnitIncluded": "（包含 {{included}}）",
+  "featuresLabel": "功能",
+  "detailsLabel": "详情",
+  "planPickerLabel": "选择您喜欢的计划",
+  "planCardLabel": "管理您的计划",
+  "planPickerAlertErrorTitle": "请求结账时出错",
+  "planPickerAlertErrorDescription": "请求结账时出错。请稍后重试。",
+  "subscriptionCancelled": "订阅已取消",
+  "cancelSubscriptionDate": "您的订阅将在周期结束时取消",
+  "noPlanChosen": "请选择一个计划",
+  "noIntervalPlanChosen": "请选择一个账单周期",
+  "status": {
+    "free": {
+      "badge": "免费计划",
+      "heading": "您当前使用的是免费计划",
+      "description": "您正在使用免费计划。您可以随时升级到付费计划。"
+    },
+    "active": {
+      "badge": "有效",
+      "heading": "您的订阅有效",
+      "description": "您的订阅有效。您可以在客户门户中管理您的订阅和账单。"
+    },
+    "trialing": {
+      "badge": "试用中",
+      "heading": "您正在试用中",
+      "description": "您可以在试用期结束前享受计划的优惠。"
+    },
+    "past_due": {
+      "badge": "逾期",
+      "heading": "您的发票已逾期",
+      "description": "您的发票已逾期。请更新您的支付方式。"
+    },
+    "canceled": {
+      "badge": "已取消",
+      "heading": "您的订阅已取消",
+      "description": "您的订阅已取消。它将在账单周期结束时终止。"
+    },
+    "unpaid": {
+      "badge": "未支付",
+      "heading": "您的发票未支付",
+      "description": "您的发票未支付。请更新您的支付方式。"
+    },
+    "incomplete": {
+      "badge": "未完成",
+      "heading": "我们正在等待您的付款",
+      "description": "我们正在等待您的付款。请耐心等待。"
+    },
+    "incomplete_expired": {
+      "badge": "已过期",
+      "heading": "您的付款已过期",
+      "description": "您的付款已过期。请更新您的支付方式。"
+    },
+    "paused": {
+      "badge": "已暂停",
+      "heading": "您的订阅已暂停",
+      "description": "您的订阅已暂停。您可以随时恢复。"
+    },
+    "succeeded": {
+      "badge": "成功",
+      "heading": "您的付款已成功",
+      "description": "您的付款已成功。感谢您的订阅！"
+    },
+    "pending": {
+      "badge": "待处理",
+      "heading": "您的付款正在处理中",
+      "description": "您的付款正在处理中。请耐心等待。"
+    },
+    "failed": {
+      "badge": "失败",
+      "heading": "您的付款失败",
+      "description": "您的付款失败。请更新您的支付方式。"
+    }
+  }
+} 

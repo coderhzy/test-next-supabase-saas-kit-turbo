@@ -41,7 +41,7 @@
 ### 数据库部署
 ```bash
 # 设置 Supabase 项目引用
-export SUPABASE_PROJECT_REF="你的项目ID"
+export SUPABASE_PROJECT_REF="vgktzzbtsighimuwgtmo"
 
 # 部署数据库 schema 到 Supabase Cloud
 pnpm supabase:deploy

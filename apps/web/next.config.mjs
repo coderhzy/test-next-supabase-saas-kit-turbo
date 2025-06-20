@@ -24,7 +24,7 @@ const INTERNAL_PACKAGES = [
 ];
 
 /** @type {import('next').NextConfig} */
-const config = {
+const config = { output: "standalone",
   reactStrictMode: true,
   /** Enables hot reloading for local packages without a build step */
   transpilePackages: INTERNAL_PACKAGES,

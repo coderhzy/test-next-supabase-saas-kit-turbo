@@ -13,7 +13,6 @@ import { Trans } from '@kit/ui/trans';
 
 import { LastAuthMethodHint } from './last-auth-method-hint';
 import { MagicLinkAuthContainer } from './magic-link-auth-container';
-import { OauthProviders } from './oauth-providers';
 import { OtpSignInContainer } from './otp-sign-in-container';
 import { PasswordSignInContainer } from './password-sign-in-container';
 
@@ -77,30 +76,6 @@ export function SignInMethodsContainer(props: {
         <OtpSignInContainer
           inviteToken={props.inviteToken}
           shouldCreateUser={false}
-        />
-      </If>
-
-      <If condition={props.providers.oAuth.length}>
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <Separator />
-          </div>
-
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background text-muted-foreground px-2">
-              <Trans i18nKey="auth:orContinueWith" />
-            </span>
-          </div>
-        </div>
-
-        <OauthProviders
-          enabledProviders={props.providers.oAuth}
-          inviteToken={props.inviteToken}
-          shouldCreateUser={false}
-          paths={{
-            callback: props.paths.callback,
-            returnPath: props.paths.returnPath,
-          }}
         />
       </If>
     </>
