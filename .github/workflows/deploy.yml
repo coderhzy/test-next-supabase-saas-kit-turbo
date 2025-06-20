@@ -21,7 +21,7 @@ jobs:
       - name: Set up pnpm
         uses: pnpm/action-setup@v3
         with:
-          version: 8 # 或者您使用的pnpm版本
+          version: 9
 
       - name: Install dependencies
         run: pnpm install
