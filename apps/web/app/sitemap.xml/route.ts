@@ -16,13 +16,13 @@ const S_MAX_AGE = 3600;
 export async function GET() {
   try {
     const paths = getPaths();
-    const contentItems = await getContentItems();
+    // const contentItems = await getContentItems();
 
     const headers = {
       'Cache-Control': `public, max-age=${MAX_AGE}, s-maxage=${S_MAX_AGE}`,
     };
 
-    return getServerSideSitemap([...paths, ...contentItems], headers);
+    return getServerSideSitemap([...paths], headers);
   } catch (error) {
     console.error('Error generating sitemap:', error);
 
