@@ -36,6 +36,7 @@ jobs:
           echo "RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}" >> ./apps/web/.env.production
           echo 'EMAIL_SENDER="${{ secrets.EMAIL_SENDER }}"' >> ./apps/web/.env.production
           echo "CMS_CLIENT=${{ secrets.CMS_CLIENT }}" >> ./apps/web/.env.production
+          echo "NEXT_PUBLIC_CI=${{ secrets.NEXT_PUBLIC_CI }}" >> ./apps/web/.env.production
           # Add any other required production environment variables here
           
       - name: Build the application
