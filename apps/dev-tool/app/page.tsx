@@ -14,29 +14,25 @@ export default async function DashboardPage(props: DashboardPageProps) {
   const mode = (await props.searchParams).mode ?? 'development';
   const connectivityService = createConnectivityService(mode);
 
-  const [supabaseStatus, supabaseAdminStatus, stripeStatus] = await Promise.all(
-    [
-      connectivityService.checkSupabaseConnectivity(),
-      connectivityService.checkSupabaseAdminConnectivity(),
-      connectivityService.checkStripeConnected(),
-    ],
-  );
+  const [supabaseStatus, supabaseAdminStatus] = await Promise.all([
+    connectivityService.checkSupabaseConnectivity(),
+    connectivityService.checkSupabaseAdminConnectivity(),
+  ]);
 
   return (
     <Page style={'custom'}>
       <PageHeader
         displaySidebarTrigger={false}
         title={'Dev Tool'}
-        description={'Check the status of your Supabase and Stripe services'}
+        description={'Check the status of your Supabase services'}
       >
         <EnvModeSelector mode={mode} />
       </PageHeader>
 
       <PageBody className={'py-2'}>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+        <div className={'grid grid-cols-1 gap-4 lg:grid-cols-3'}>
           <ServiceCard name={'Supabase API'} status={supabaseStatus} />
           <ServiceCard name={'Supabase Admin'} status={supabaseAdminStatus} />
-          <ServiceCard name={'Stripe API'} status={stripeStatus} />
         </div>
       </PageBody>
     </Page>

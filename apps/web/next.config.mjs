@@ -24,10 +24,11 @@ const INTERNAL_PACKAGES = [
 ];
 
 /** @type {import('next').NextConfig} */
-const config = { output: "standalone",
+const config = {
+  output: "standalone",
   reactStrictMode: true,
   /** Enables hot reloading for local packages without a build step */
-  transpilePackages: INTERNAL_PACKAGES,
+  transpilePackages: ['@kit/*'],
   images: {
     remotePatterns: getRemotePatterns(),
   },
@@ -92,15 +93,15 @@ function getRemotePatterns() {
   return IS_PRODUCTION
     ? remotePatterns
     : [
-        {
-          protocol: 'http',
-          hostname: '127.0.0.1',
-        },
-        {
-          protocol: 'http',
-          hostname: 'localhost',
-        },
-      ];
+      {
+        protocol: 'http',
+        hostname: '127.0.0.1',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+      },
+    ];
 }
 
 async function getRedirects() {
@@ -131,7 +132,6 @@ function getModulesAliases() {
   // exclude the modules that are not needed
   const excludeSentry = monitoringProvider !== 'sentry';
   const excludeBaselime = monitoringProvider !== 'baselime';
-  const excludeStripe = billingProvider !== 'stripe';
   const excludeNodemailer = mailerProvider !== 'nodemailer';
   const excludeTurnstile = !captchaProvider;
 
@@ -147,11 +147,6 @@ function getModulesAliases() {
 
   if (excludeBaselime) {
     aliases['@baselime/react-rum'] = noopPath;
-  }
-
-  if (excludeStripe) {
-    aliases['stripe'] = noopPath;
-    aliases['@stripe/stripe-js'] = noopPath;
   }
 
   if (excludeNodemailer) {

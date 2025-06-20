@@ -1,13 +1,7 @@
 import { Page, expect } from '@playwright/test';
 
-import { StripePageObject } from './stripe.po';
-
 export class BillingPageObject {
-  public readonly stripe: StripePageObject;
-
-  constructor(private readonly page: Page) {
-    this.stripe = new StripePageObject(page);
-  }
+  constructor(private readonly page: Page) {}
 
   plans() {
     return this.page.locator('[data-test-plan]');

@@ -33,16 +33,6 @@ export function EmbeddedCheckout(
 
 function loadCheckoutComponent(provider: BillingProvider) {
   switch (provider) {
-    case 'stripe': {
-      return buildLazyComponent(() => {
-        return import('@kit/stripe/components').then(({ StripeCheckout }) => {
-          return {
-            default: StripeCheckout,
-          };
-        });
-      });
-    }
-
     case 'lemon-squeezy': {
       return buildLazyComponent(() => {
         return import('@kit/lemon-squeezy/components').then(

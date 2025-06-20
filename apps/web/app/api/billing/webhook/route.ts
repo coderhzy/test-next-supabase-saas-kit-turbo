@@ -7,7 +7,7 @@ import { getSupabaseServerAdminClient } from '@kit/supabase/server-admin-client'
 import billingConfig from '~/config/billing.config';
 
 /**
- * @description Handle the webhooks from Stripe related to checkouts
+ * @description Handle the webhooks from the billing provider
  */
 export const POST = enhanceRouteHandler(
   async ({ request }) => {

@@ -1,15 +1,5 @@
 import { z } from 'zod';
 
-const TimeFilter = z.object(
-  {
-    startTime: z.number(),
-    endTime: z.number(),
-  },
-  {
-    description: `The time range to filter the usage records. Used for Stripe`,
-  },
-);
-
 const PageFilter = z.object(
   {
     page: z.number(),
@@ -28,5 +18,5 @@ export const QueryBillingUsageSchema = z.object({
   customerId: z.string({
     description: 'The id of the customer in the billing system',
   }),
-  filter: z.union([TimeFilter, PageFilter]),
+  filter: PageFilter,
 });

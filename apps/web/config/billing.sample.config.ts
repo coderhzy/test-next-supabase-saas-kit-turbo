@@ -7,9 +7,11 @@ import { BillingProviderSchema, createBillingSchema } from '@kit/billing';
 // The billing provider to use. This should be set in the environment variables
 // and should match the provider in the database. We also add it here so we can validate
 // your configuration against the selected provider at build time.
-const provider = BillingProviderSchema.parse(
+const result = BillingProviderSchema.safeParse(
   process.env.NEXT_PUBLIC_BILLING_PROVIDER,
 );
+
+const provider = result.success ? result.data : 'lemon-squeezy';
 
 export default createBillingSchema({
   // also update config.billing_provider in the DB to match the selected
@@ -30,7 +32,7 @@ export default createBillingSchema({
           interval: 'month',
           lineItems: [
             {
-              id: 'price_1NNwYHI1i3VnbZTqI2UzaHIe',
+              id: 'starter-monthly',
               name: 'Starter',
               cost: 9.99,
               type: 'flat' as const,
@@ -69,7 +71,7 @@ export default createBillingSchema({
           interval: 'month',
           lineItems: [
             {
-              id: 'price_1PGOAVI1i3VnbZTqc69xaypm',
+              id: 'pro-monthly',
               name: 'Base',
               cost: 19.99,
               type: 'flat',
@@ -112,7 +114,7 @@ export default createBillingSchema({
           interval: 'month',
           lineItems: [
             {
-              id: 'price_enterprise-monthly',
+              id: 'enterprise-monthly',
               name: 'Base',
               cost: 29.99,
               type: 'flat',

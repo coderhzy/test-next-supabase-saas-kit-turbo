@@ -10,7 +10,7 @@ create table if not exists
     enable_team_accounts boolean default true not null,
     enable_account_billing boolean default true not null,
     enable_team_account_billing boolean default true not null,
-    billing_provider public.billing_provider default 'stripe' not null
+    billing_provider public.billing_provider default 'lemon-squeezy' not null
   );
 
 comment on table public.config is 'Configuration for the Supabase MakerKit.';

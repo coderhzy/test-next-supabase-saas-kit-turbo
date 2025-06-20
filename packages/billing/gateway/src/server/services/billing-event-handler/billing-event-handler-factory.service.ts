@@ -23,13 +23,6 @@ export function createBillingEventHandlerFactoryService(
     z.infer<typeof BillingProviderSchema>
   >();
 
-  // Register the Stripe webhook handler
-  billingWebhookHandlerRegistry.register('stripe', async () => {
-    const { StripeWebhookHandlerService } = await import('@kit/stripe');
-
-    return new StripeWebhookHandlerService(planTypesMap);
-  });
-
   // Register the Lemon Squeezy webhook handler
   billingWebhookHandlerRegistry.register('lemon-squeezy', async () => {
     const { LemonSqueezyWebhookHandlerService } = await import(

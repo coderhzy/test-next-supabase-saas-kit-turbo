@@ -465,142 +465,26 @@ export const envVariables: EnvVariableModel[] = [
   {
     name: 'NEXT_PUBLIC_BILLING_PROVIDER',
     description:
-      'Your chosen billing provider. Options: stripe or lemon-squeezy.',
+      'Your chosen billing provider. Options: lemon-squeezy or paddle.',
     category: 'Billing',
     required: true,
     type: 'enum',
-    values: ['stripe', 'lemon-squeezy'],
+    values: ['lemon-squeezy', 'paddle'],
     validate: ({ value }) => {
-      return z.enum(['stripe', 'lemon-squeezy']).optional().safeParse(value);
+      return z.enum(['lemon-squeezy', 'paddle']).optional().safeParse(value);
     },
   },
   {
     name: 'NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY',
-    description: 'Your Stripe publishable key.',
-    hint: `Ex. pk_test_123456789012345678901234`,
-    category: 'Billing',
-    type: 'string',
-    contextualValidation: {
-      dependencies: [
-        {
-          variable: 'NEXT_PUBLIC_BILLING_PROVIDER',
-          condition: (value) => value === 'stripe',
-          message:
-            'NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is required when NEXT_PUBLIC_BILLING_PROVIDER is set to "stripe"',
-        },
-      ],
-      validate: ({ value }) => {
-        return z
-          .string()
-          .min(
-            1,
-            `The NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY variable must be at least 1 character`,
-          )
-          .refine(
-            (value) => {
-              return value.startsWith('pk_');
-            },
-            {
-              message: `The NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY variable must start with pk_`,
-            },
-          )
-          .safeParse(value);
-      },
-    },
-    validate: ({ value }) => {
-      return z
-        .string()
-        .min(
-          1,
-          `The NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY variable must be at least 1 character`,
-        )
-        .optional()
-        .safeParse(value);
-    },
+    hidden: true,
   },
   {
     name: 'STRIPE_SECRET_KEY',
-    description: 'Your Stripe secret key.',
-    category: 'Billing',
-    hint: ``,
-    secret: true,
-    type: 'string',
-    contextualValidation: {
-      dependencies: [
-        {
-          variable: 'NEXT_PUBLIC_BILLING_PROVIDER',
-          condition: (value) => value === 'stripe',
-          message:
-            'STRIPE_SECRET_KEY is required when NEXT_PUBLIC_BILLING_PROVIDER is set to "stripe"',
-        },
-      ],
-      validate: ({ value }) => {
-        return z
-          .string()
-          .min(1, `The STRIPE_SECRET_KEY variable must be at least 1 character`)
-          .refine(
-            (value) => {
-              return value.startsWith('sk_') || value.startsWith('rk_');
-            },
-            {
-              message: `The STRIPE_SECRET_KEY variable must start with sk_ or rk_`,
-            },
-          )
-          .safeParse(value);
-      },
-    },
-    validate: ({ value }) => {
-      return z
-        .string()
-        .min(1, `The STRIPE_SECRET_KEY variable must be at least 1 character`)
-        .optional()
-        .safeParse(value);
-    },
+    hidden: true,
   },
   {
     name: 'STRIPE_WEBHOOK_SECRET',
-    description: 'Your Stripe webhook secret.',
-    category: 'Billing',
-    hint: `Ex. whsec_123456789012345678901234`,
-    secret: true,
-    type: 'string',
-    contextualValidation: {
-      dependencies: [
-        {
-          variable: 'NEXT_PUBLIC_BILLING_PROVIDER',
-          condition: (value) => value === 'stripe',
-          message:
-            'STRIPE_WEBHOOK_SECRET is required when NEXT_PUBLIC_BILLING_PROVIDER is set to "stripe"',
-        },
-      ],
-      validate: ({ value }) => {
-        return z
-          .string()
-          .min(
-            1,
-            `The STRIPE_WEBHOOK_SECRET variable must be at least 1 character`,
-          )
-          .refine(
-            (value) => {
-              return value.startsWith('whsec_');
-            },
-            {
-              message: `The STRIPE_WEBHOOK_SECRET variable must start with whsec_`,
-            },
-          )
-          .safeParse(value);
-      },
-    },
-    validate: ({ value }) => {
-      return z
-        .string()
-        .min(
-          1,
-          `The STRIPE_WEBHOOK_SECRET variable must be at least 1 character`,
-        )
-        .optional()
-        .safeParse(value);
-    },
+    hidden: true,
   },
   {
     name: 'LEMON_SQUEEZY_SECRET_KEY',

@@ -14,12 +14,6 @@ export const billingStrategyRegistry = createRegistry<
   z.infer<typeof BillingProviderSchema>
 >();
 
-// Register the Stripe billing strategy
-billingStrategyRegistry.register('stripe', async () => {
-  const { StripeBillingStrategyService } = await import('@kit/stripe');
-  return new StripeBillingStrategyService();
-});
-
 // Register the Lemon Squeezy billing strategy
 billingStrategyRegistry.register('lemon-squeezy', async () => {
   const { LemonSqueezyBillingStrategyService } = await import(

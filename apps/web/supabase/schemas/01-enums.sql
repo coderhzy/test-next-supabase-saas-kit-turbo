@@ -48,7 +48,7 @@ create type public.payment_status as ENUM('pending', 'succeeded', 'failed');
 - The providers are 'stripe', 'lemon-squeezy', and 'paddle'.
 - You can add more providers as needed.
 */
-create type public.billing_provider as ENUM('stripe', 'lemon-squeezy', 'paddle');
+create type public.billing_provider as ENUM('lemon-squeezy', 'paddle');
 
 /*
 * Subscription Item Type

@@ -202,30 +202,8 @@ export function createEnvironmentVariablesGenerator(
         type: 'list',
         name: 'values.NEXT_PUBLIC_BILLING_PROVIDER',
         message: `What is the billing provider you want to use?\nFor more info: ${getUrlToDocs('NEXT_PUBLIC_BILLING_PROVIDER')}\n`,
-        choices: ['stripe', 'lemon-squeezy'],
-        default: allVariables.NEXT_PUBLIC_BILLING_PROVIDER ?? 'stripe',
-      },
-      {
-        when: (answers) =>
-          answers.values.NEXT_PUBLIC_BILLING_PROVIDER === 'stripe',
-        type: 'input',
-        name: 'values.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY',
-        message: `What is the Stripe publishable key?\nFor more info: ${getUrlToDocs('NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY')}\n`,
-        default: allVariables.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
-      },
-      {
-        when: (answers) =>
-          answers.values.NEXT_PUBLIC_BILLING_PROVIDER === 'stripe',
-        type: 'input',
-        name: 'values.STRIPE_SECRET_KEY',
-        message: `What is the Stripe secret key? \nFor more info: ${getUrlToDocs('NEXT_PUBLIC_BILLING_PROVIDER')}\n`,
-      },
-      {
-        when: (answers) =>
-          answers.values.NEXT_PUBLIC_BILLING_PROVIDER === 'stripe',
-        type: 'input',
-        name: 'values.STRIPE_WEBHOOK_SECRET',
-        message: `What is the Stripe webhook secret? \nFor more info: ${getUrlToDocs('STRIPE_WEBHOOK_SECRET')}\n`,
+        choices: ['lemon-squeezy'],
+        default: allVariables.NEXT_PUBLIC_BILLING_PROVIDER ?? 'lemon-squeezy',
       },
       {
         when: (answers) =>
