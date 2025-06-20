@@ -34,7 +34,7 @@ jobs:
           echo "SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" >> ./apps/web/.env.production
           echo "MAILER_PROVIDER=${{ secrets.MAILER_PROVIDER }}" >> ./apps/web/.env.production
           echo "RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}" >> ./apps/web/.env.production
-          echo "EMAIL_SENDER=\"${{ secrets.EMAIL_SENDER }}\"" >> ./apps/web/.env.production
+          echo 'EMAIL_SENDER="${{ secrets.EMAIL_SENDER }}"' >> ./apps/web/.env.production
           # Add any other required production environment variables here
           
       - name: Build the application
