@@ -26,10 +26,10 @@ export function Hero({
     <div className={cn('mx-auto flex flex-col space-y-20', className)}>
       <div
         style={{
-          MozAnimationDuration: '100ms',
+          MozAnimationDuration: '500ms',
         }}
         className={cn(
-          'mx-auto flex flex-1 flex-col items-center justify-center duration-800 md:flex-row',
+          'mx-auto flex flex-1 flex-col items-center justify-center duration-1000 md:flex-row',
           {
             ['animate-in fade-in zoom-in-90 slide-in-from-top-24']: animate,
           },

@@ -14,25 +14,25 @@ import { Trans } from '@kit/ui/trans';
 import { SiteNavigationItem } from './site-navigation-item';
 
 const links = {
-  Blog: {
-    label: 'marketing:blog',
-    path: '/blog',
+  Home: {
+    label: '首页',
+    path: '/',
   },
-  Docs: {
-    label: 'marketing:documentation',
-    path: '/docs',
+  Traders: {
+    label: '全国操盘手',
+    path: '/traders',
   },
-  Pricing: {
-    label: 'marketing:pricing',
-    path: '/pricing',
+  Bounty: {
+    label: '悬赏榜',
+    path: '/bounty',
   },
-  FAQ: {
-    label: 'marketing:faq',
-    path: '/faq',
+  Services: {
+    label: '智能体服务',
+    path: '/services',
   },
-  Contact: {
-    label: 'marketing:contact',
-    path: '/contact',
+  About: {
+    label: '关于我们',
+    path: '/about',
   },
 };
 
@@ -40,7 +40,7 @@ export function SiteNavigation() {
   const NavItems = Object.values(links).map((item) => {
     return (
       <SiteNavigationItem key={item.path} path={item.path}>
-        <Trans i18nKey={item.label} />
+        {item.label}
       </SiteNavigationItem>
     );
   });
@@ -76,7 +76,7 @@ function MobileDropdown() {
           return (
             <DropdownMenuItem key={item.path} asChild>
               <Link className={className} href={item.path}>
-                <Trans i18nKey={item.label} />
+                {item.label}
               </Link>
             </DropdownMenuItem>
           );
