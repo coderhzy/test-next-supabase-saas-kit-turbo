@@ -47,11 +47,11 @@ export function createDockerGenerator(plop: PlopTypes.NodePlopAPI) {
       async () => {
         execSync('pnpm i', {
           stdio: 'inherit',
-        })
-
-        execSync('pnpm format:fix', {
-          stdio: 'inherit',
         });
+
+        // execSync('pnpm format:fix', {
+        //   stdio: 'inherit',
+        // });
 
         return 'Dockerfile generated';
       },

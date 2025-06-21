@@ -41,7 +41,7 @@
 ### 数据库部署
 ```bash
 # 设置 Supabase 项目引用
-export SUPABASE_PROJECT_REF="vgktzzbtsighimuwgtmo"
+export SUPABASE_PROJECT_REF="gfddmiuufxxhkcvifvie"
 
 # 部署数据库 schema 到 Supabase Cloud
 pnpm supabase:deploy
@@ -68,6 +68,7 @@ pnpm --filter web start
 # Docker 方式 (推荐)
 docker build -t my-saas .
 docker run -p 3000:3000 my-saas
+docker run -d --name my-saas -p 3000:3000 --env-file ./production.env my-saas
 ```
 
 ## 🛠 环境变量配置
