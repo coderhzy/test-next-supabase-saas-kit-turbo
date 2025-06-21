@@ -79,7 +79,28 @@ export default withBundleAnalyzer({
 
 function getRemotePatterns() {
   /** @type {import('next').NextConfig['remotePatterns']} */
-  const remotePatterns = [];
+  const remotePatterns = [
+    {
+      protocol: 'https',
+      hostname: 'i.pravatar.cc',
+    },
+    {
+      protocol: 'https',
+      hostname: 'picsum.photos',
+    },
+    {
+      protocol: 'https',
+      hostname: 'img2.baidu.com',
+    },
+    {
+      protocol: 'https',
+      hostname: 'wx3.sinaimg.cn',
+    },
+    {
+      protocol: 'https',
+      hostname: 'miaobi-lite.bj.bcebos.com',
+    },
+  ];
 
   if (SUPABASE_URL) {
     const hostname = new URL(SUPABASE_URL).hostname;
@@ -90,9 +111,8 @@ function getRemotePatterns() {
     });
   }
 
-  return IS_PRODUCTION
-    ? remotePatterns
-    : [
+  if (!IS_PRODUCTION) {
+    remotePatterns.push(
       {
         protocol: 'http',
         hostname: '127.0.0.1',
@@ -101,7 +121,10 @@ function getRemotePatterns() {
         protocol: 'http',
         hostname: 'localhost',
       },
-    ];
+    );
+  }
+
+  return remotePatterns;
 }
 
 async function getRedirects() {
@@ -125,7 +148,7 @@ function getModulesAliases() {
   }
 
   const monitoringProvider = process.env.NEXT_PUBLIC_MONITORING_PROVIDER;
-  const billingProvider = process.env.NEXT_PUBLIC_BILLING_PROVIDER;
+  // const billingProvider = process.env.NEXT_PUBLIC_BILLING_PROVIDER;
   const mailerProvider = process.env.MAILER_PROVIDER;
   const captchaProvider = process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY;
 

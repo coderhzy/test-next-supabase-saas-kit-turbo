@@ -3,9 +3,20 @@
 import { useEffect, useRef, useState } from 'react';
 import * as echarts from 'echarts';
 import 'echarts/lib/chart/map';
+import type { SeriesOption } from 'echarts';
 
-import { MapTooltip } from './MapTooltip';
-import type { DataItem } from './mock-data';
+import { Client } from '../../_components/mock-data';
+import { ClientInfoCard } from './ClientInfoCard';
+
+interface EChartsTooltipParams
+    extends echarts.DefaultLabelFormatterCallbackParams {
+    data: {
+        name: string;
+        value: number[];
+        avatar: string;
+        clientData: Client;
+    };
+}
 
 const geoCoordMap: Record<string, number[]> = {
     上海: [121.4648, 31.2891],
@@ -124,25 +135,20 @@ const geoCoordMap: Record<string, number[]> = {
     韶关: [113.7964, 24.7028],
 };
 
-interface InteractiveMapProps {
-    traders: DataItem[];
-    allTracks: string[];
-    hoveredTrader: DataItem | null;
+interface ClientMapProps {
+    clients: Client[];
+    activeClient: Client | null;
+    setActiveClient: (client: Client | null) => void;
 }
 
-const InteractiveMap = ({
-    traders,
-    allTracks,
-    hoveredTrader,
-}: InteractiveMapProps) => {
+const ClientMap = ({ clients, activeClient, setActiveClient }: ClientMapProps) => {
     const chartRef = useRef<HTMLDivElement>(null);
+    const chartInstance = useRef<echarts.ECharts | null>(null);
     const tooltipRef = useRef<HTMLDivElement>(null);
-    const [selectedData, setSelectedData] = useState<DataItem | null>(null);
     const [cardPosition, setCardPosition] = useState<{
         top: number;
         left: number;
     } | null>(null);
-    const chartInstance = useRef<echarts.ECharts | null>(null);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -152,7 +158,7 @@ const InteractiveMap = ({
                 tooltipRef.current &&
                 !tooltipRef.current.contains(event.target as Node)
             ) {
-                setSelectedData(null);
+                setActiveClient(null);
             }
         };
 
@@ -160,167 +166,165 @@ const InteractiveMap = ({
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, []);
+    }, [setActiveClient]);
 
     useEffect(() => {
-        if (hoveredTrader && chartInstance.current) {
-            const coords = geoCoordMap[hoveredTrader.city];
+        if (activeClient && chartInstance.current) {
+            const coords = geoCoordMap[activeClient.city];
             if (coords) {
-                const pixelCoords = chartInstance.current.convertToPixel(
-                    'geo',
-                    coords,
-                );
-
-                if (
-                    pixelCoords &&
-                    typeof pixelCoords[0] === 'number' &&
-                    typeof pixelCoords[1] === 'number'
-                ) {
-                    setSelectedData(hoveredTrader);
-                    setCardPosition({
-                        top: pixelCoords[1],
-                        left: pixelCoords[0] + 15,
-                    });
-                }
+                const pixelCoords = chartInstance.current.convertToPixel('geo', coords);
+                setCardPosition({
+                    top: pixelCoords[1] + 15,
+                    left: pixelCoords[0] + 15,
+                });
             }
         } else {
-            setSelectedData(null);
+            setCardPosition(null);
         }
-    }, [hoveredTrader]);
+    }, [activeClient]);
 
     useEffect(() => {
         const initializeChart = async () => {
             if (!chartRef.current) return;
 
             try {
-                // Initialize chart instance if it doesn't exist
+                let chart: echarts.ECharts;
+
                 if (!chartInstance.current) {
                     const response = await fetch(
                         'https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json',
                     );
                     const chinaJson = await response.json();
                     echarts.registerMap('china', chinaJson);
-
-                    const chart = echarts.init(chartRef.current);
+                    chart = echarts.init(chartRef.current);
                     chartInstance.current = chart;
 
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    chart.on('click', (params: any) => {
+                    chart.on('click', (params) => {
                         if (
                             params.componentType === 'series' &&
-                            params.data?.tooltipData
+                            params.seriesType === 'scatter'
                         ) {
-                            setSelectedData(params.data.tooltipData);
-
-                            const rect = chartRef.current!.getBoundingClientRect();
-                            setCardPosition({
-                                top: params.event.event.clientY - rect.top + 15,
-                                left: params.event.event.clientX - rect.left + 15,
-                            });
+                            const clientData = (params.data as EChartsTooltipParams['data'])
+                                .clientData;
+                            if (clientData) {
+                                setActiveClient(clientData);
+                            }
                         } else {
-                            setSelectedData(null);
+                            setActiveClient(null);
                         }
                     });
 
-                    const handleResize = () => chart.resize();
-                    window.addEventListener('resize', handleResize);
+                    window.addEventListener('resize', () => chart.resize());
+                } else {
+                    chart = chartInstance.current;
                 }
 
-                // Now, set/update the options
-                const chart = chartInstance.current;
-                const styles = getComputedStyle(chartRef.current!);
-                const primaryColorValue = styles.getPropertyValue('--primary').trim();
-                const primaryColor = primaryColorValue ? `hsl(${primaryColorValue})` : '#38B2AC'; // Provide a fallback color
-
                 const mapColors = {
-                    area: 'hsl(222.2 47.4% 11.2%)', // primary-foreground equivalent
-                    border: 'hsl(217.2 32.6% 17.5%)', // border equivalent
-                    text: 'hsl(210 40% 98%)', // text equivalent
+                    area: 'hsl(222.2 47.4% 11.2%)',
+                    border: 'hsl(217.2 32.6% 17.5%)',
+                    text: 'hsl(210 40% 98%)',
                     hoverArea: 'hsl(217.2 32.6% 22.5%)',
                 };
 
-                const seriesColors = [primaryColor, '#38B2AC', '#805AD5', '#D53F8C', '#ECC94B'];
-                const trackColorMap = new Map<string, string>();
-                allTracks.forEach((track, index) => {
-                    trackColorMap.set(track, seriesColors[index % seriesColors.length] ?? '#38B2AC');
-                });
+                const processedClients = await Promise.all(
+                    clients.map(
+                        (client) =>
+                            new Promise<{
+                                name: string;
+                                city: string;
+                                avatar: string;
+                                circularAvatar: string;
+                                clientData: Client;
+                            }>((resolve) => {
+                                const img = new Image();
+                                img.crossOrigin = 'Anonymous';
+                                img.src = client.avatar;
+                                img.onload = () => {
+                                    const canvas = document.createElement('canvas');
+                                    const ctx = canvas.getContext('2d')!;
+                                    const size = 64;
+                                    canvas.width = size;
+                                    canvas.height = size;
+                                    ctx.beginPath();
+                                    ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+                                    ctx.closePath();
+                                    ctx.clip();
+                                    ctx.drawImage(img, 0, 0, size, size);
+                                    resolve({
+                                        ...client,
+                                        circularAvatar: canvas.toDataURL(),
+                                        clientData: client,
+                                    });
+                                };
+                                img.onerror = () => {
+                                    resolve({
+                                        ...client,
+                                        circularAvatar: '',
+                                        clientData: client,
+                                    });
+                                };
+                            }),
+                    ),
+                );
 
-                const series = traders.reduce((acc, trader) => {
-                    const coords = geoCoordMap[trader.city];
-                    if (!coords) return acc;
+                const series = processedClients.reduce((acc, client) => {
+                    const coords = geoCoordMap[client.city];
+                    if (!coords || !client.circularAvatar) return acc;
 
-                    const primaryTrack = trader.tracks.split('、')[0];
-                    const color = trackColorMap.get(primaryTrack ?? '') ?? '#38B2AC'; // Use hardcoded fallback
-
-                    const mappedData = {
-                        name: trader.name,
-                        value: coords.concat(trader.value),
-                        tooltipData: trader,
-                    };
-
-                    const visibleSeries = {
-                        name: trader.name,
-                        type: 'effectScatter' as const,
-                        coordinateSystem: 'geo',
-                        zlevel: 3,
-                        rippleEffect: { brushType: 'stroke' as const },
-                        label: { show: false },
-                        symbolSize: (val: number[]) => (val && val[2] ? val[2] / 8 : 0),
-                        itemStyle: { color },
-                        data: [mappedData],
-                    };
-
-                    const clickableSeries = {
-                        name: `Clickable-${trader.name}`,
+                    const clientSeries = {
+                        name: client.name,
                         type: 'scatter' as const,
                         coordinateSystem: 'geo',
-                        zlevel: 2,
-                        symbolSize: 40,
-                        itemStyle: { opacity: 0 },
-                        tooltip: { show: false },
-                        data: [mappedData],
+                        zlevel: 3,
+                        symbol: `image://${client.circularAvatar}`,
+                        symbolSize: 30,
+                        label: { show: false },
+                        data: [
+                            {
+                                name: client.name,
+                                value: coords,
+                                avatar: client.circularAvatar,
+                                clientData: client.clientData,
+                            },
+                        ],
                     };
 
-                    acc.push(visibleSeries, clickableSeries);
+                    acc.push(clientSeries);
                     return acc;
-                }, [] as echarts.SeriesOption[]);
+                }, [] as SeriesOption[]);
 
-                chart.setOption({
-                    tooltip: {
-                        trigger: 'item',
-                        formatter: '{b}',
-                    },
-                    geo: {
-                        map: 'china',
-                        roam: true,
-                        layoutCenter: ['50%', '50%'],
-                        layoutSize: '100%',
-                        itemStyle: {
-                            areaColor: mapColors.area,
-                            borderColor: mapColors.border,
-                        },
-                        emphasis: {
-                            itemStyle: {
-                                areaColor: mapColors.hoverArea,
-                            },
-                            label: {
-                                show: true,
-                                color: mapColors.text,
+                chart.setOption(
+                    {
+                        tooltip: {
+                            trigger: 'item',
+                            formatter: (
+                                params: echarts.DefaultLabelFormatterCallbackParams,
+                            ) => {
+                                const { name, data } = params as EChartsTooltipParams;
+                                return `<div class="flex items-center space-x-2 p-1">
+                  <img src="${data.avatar}" class="h-8 w-8 rounded-full" />
+                  <span class="font-semibold">${name}</span>
+                </div>`;
                             },
                         },
-                        select: {
+                        geo: {
+                            map: 'china',
+                            roam: true,
+                            layoutCenter: ['50%', '50%'],
+                            layoutSize: '100%',
                             itemStyle: {
-                                areaColor: mapColors.hoverArea,
+                                areaColor: mapColors.area,
+                                borderColor: mapColors.border,
                             },
-                            label: {
-                                show: true,
-                                color: mapColors.text,
+                            emphasis: {
+                                itemStyle: { areaColor: mapColors.hoverArea },
+                                label: { show: true, color: mapColors.text },
                             },
-                        }
+                        },
+                        series,
                     },
-                    series,
-                }, { notMerge: true });
-
+                    { notMerge: true },
+                );
             } catch (error) {
                 console.error('Failed to initialize or update chart:', error);
             }
@@ -328,22 +332,21 @@ const InteractiveMap = ({
 
         initializeChart();
 
-        // Cleanup on component unmount
         return () => {
             if (chartInstance.current) {
-                const handleResize = () => chartInstance.current?.resize();
-                window.removeEventListener('resize', handleResize);
+                window.removeEventListener('resize', () =>
+                    chartInstance.current?.resize(),
+                );
                 chartInstance.current.dispose();
                 chartInstance.current = null;
             }
         };
-    }, [traders, allTracks]);
-
+    }, [clients, setActiveClient]);
 
     return (
         <div style={{ position: 'relative', width: '100%', height: '100%' }}>
             <div ref={chartRef} style={{ width: '100%', height: '100%' }} />
-            {selectedData && cardPosition && (
+            {activeClient && cardPosition && (
                 <div
                     ref={tooltipRef}
                     style={{
@@ -353,11 +356,11 @@ const InteractiveMap = ({
                         zIndex: 999,
                     }}
                 >
-                    <MapTooltip data={selectedData} />
+                    <ClientInfoCard client={activeClient} />
                 </div>
             )}
         </div>
     );
 };
 
-export default InteractiveMap; 
+export default ClientMap;

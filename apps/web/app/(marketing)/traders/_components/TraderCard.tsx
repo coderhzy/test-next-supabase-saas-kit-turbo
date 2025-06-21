@@ -1,56 +1,46 @@
 import Image from 'next/image';
 import Link from 'next/link';
-
-import { Card, CardContent } from '@kit/ui/card';
-import { Button } from '@kit/ui/button';
-
-import type { DataItem } from './mock-data';
+import { Badge } from '@kit/ui/badge';
+import {
+    Card,
+    CardDescription,
+    CardTitle,
+} from '@kit/ui/card';
+import { DataItem } from './mock-data';
 
 export function TraderCard({ trader }: { trader: DataItem }) {
     return (
-        <Card>
-            <CardContent className="flex flex-col space-y-4 p-4 md:flex-row md:space-x-6 md:space-y-0">
-                <div className="relative h-40 w-full flex-shrink-0 md:h-32 md:w-32">
+        <Link href={`/traders/${encodeURIComponent(trader.name)}`}>
+            <Card className="flex flex-row items-stretch transition-all hover:shadow-lg w-full">
+                <div className="relative h-32 w-32 flex-shrink-0">
                     <Image
                         src={trader.image}
                         alt={trader.name}
-                        className="rounded-lg object-cover"
                         fill
+                        className="rounded-l-lg object-cover"
                     />
                 </div>
-
-                <div className="flex-1">
-                    <div className="flex flex-col space-y-1">
-                        <div className="flex items-center justify-between">
-                            <h3 className="text-lg font-semibold">{trader.name}</h3>
-                            <p className="text-primary">
-                                合作价 ¥ <span className="text-xl font-bold">{trader.price}</span>
-                            </p>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-x-4 pt-1 text-sm">
-                            <div>
-                                <h4 className="font-medium text-muted-foreground">擅长赛道:</h4>
-                                <p>{trader.tracks}</p>
-                            </div>
-                            <div>
-                                <h4 className="font-medium text-muted-foreground">业务地区:</h4>
-                                <p>{trader.areas}</p>
-                            </div>
-                        </div>
-
-                        <p className="pt-2 text-sm text-muted-foreground">
+                <div className="flex flex-1 flex-col justify-between p-4">
+                    <div>
+                        <CardTitle className="mb-2 text-lg">{trader.name}</CardTitle>
+                        <CardDescription className="line-clamp-2 text-sm">
                             {trader.description}
-                        </p>
+                        </CardDescription>
+                    </div>
+                    <div className="mt-2 flex items-center justify-between">
+                        <div className="flex flex-wrap gap-2">
+                            {trader.tracks.split('、').map((track) => (
+                                <Badge key={track} variant="secondary">
+                                    {track}
+                                </Badge>
+                            ))}
+                        </div>
+                        <span className="text-sm font-semibold text-primary">
+                            查看详情 &rarr;
+                        </span>
                     </div>
                 </div>
-
-                <div className="flex flex-shrink-0 items-end justify-end md:w-32 md:flex-col md:items-center md:justify-center">
-                    <Button asChild variant="link">
-                        <Link href="#">查看详细信息 &gt;&gt;</Link>
-                    </Button>
-                </div>
-            </CardContent>
-        </Card>
+            </Card>
+        </Link>
     );
 } 

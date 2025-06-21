@@ -30,17 +30,14 @@ function TradersPageClient({
     tracks,
 }: TradersPageClientProps) {
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectedProvince, setSelectedProvince] = useState<string | 'all'>(
-        'all',
-    );
+    const [selectedProvince, setSelectedProvince] = useState<string | 'all'>('all');
     const [selectedTrack, setSelectedTrack] = useState<string | 'all'>('all');
+    const [hoveredTrader, setHoveredTrader] = useState<DataItem | null>(null);
 
     // Debounced filter values
     const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
-    const [debouncedSelectedProvince, setDebouncedSelectedProvince] =
-        useState(selectedProvince);
-    const [debouncedSelectedTrack, setDebouncedSelectedTrack] =
-        useState(selectedTrack);
+    const [debouncedSelectedProvince, setDebouncedSelectedProvince] = useState(selectedProvince);
+    const [debouncedSelectedTrack, setDebouncedSelectedTrack] = useState(selectedTrack);
 
     // Effect to debounce filter changes
     useEffect(() => {
@@ -79,7 +76,11 @@ function TradersPageClient({
             {/* Left side: Map */}
             <div className="w-full lg:w-1/2">
                 <div className="sticky top-4 h-[calc(100vh-10rem)] rounded-lg bg-muted">
-                    <InteractiveMap traders={filteredTraders} allTracks={tracks} />
+                    <InteractiveMap
+                        traders={filteredTraders}
+                        allTracks={tracks}
+                        hoveredTrader={hoveredTrader}
+                    />
                 </div>
             </div>
 
@@ -137,7 +138,13 @@ function TradersPageClient({
                     <div className="space-y-4 pr-4">
                         {filteredTraders.length > 0 ? (
                             filteredTraders.map((trader) => (
-                                <TraderCard key={trader.name} trader={trader} />
+                                <div
+                                    key={trader.name}
+                                    onMouseEnter={() => setHoveredTrader(trader)}
+                                    onMouseLeave={() => setHoveredTrader(null)}
+                                >
+                                    <TraderCard trader={trader} />
+                                </div>
                             ))
                         ) : (
                             <div className="flex h-40 items-center justify-center rounded-lg bg-muted text-muted-foreground">
