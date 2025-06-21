@@ -6,64 +6,63 @@ on:
       - master  # 当代码推送到 master 分支时触发
 
 jobs:
-  deploy:
+  build_and_deploy:
     runs-on: ubuntu-latest
+    
+    env:
+      # 为了方便复用，在这里定义 ACR registry 和镜像名称
+      REGISTRY: ${{ secrets.ACR_REGISTRY }}
+      IMAGE_NAME: ${{ secrets.ACR_NAMESPACE }}/next-supabase-turbo
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Alibaba Cloud Container Registry (ACR)
+        uses: docker/login-action@v3
         with:
-          node-version: '20'
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
 
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v3
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
         with:
-          version: 9
+          context: .
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          # 将 secrets作为构建参数传递给 Dockerfile
+          # 这对于 Next.js 在构建时注入 NEXT_PUBLIC_ 变量是必需的
+          build-args: |
+            NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}
+            NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+            NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+            SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+            MAILER_PROVIDER=${{ secrets.MAILER_PROVIDER }}
+            RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}
+            EMAIL_SENDER=${{ secrets.EMAIL_SENDER }}
+            CMS_CLIENT=${{ secrets.CMS_CLIENT }}
+            NEXT_PUBLIC_CI=${{ secrets.NEXT_PUBLIC_CI }}
 
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Create Production .env file
-        run: |
-          echo "NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}" >> ./apps/web/.env.production
-          echo "NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}" >> ./apps/web/.env.production
-          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" >> ./apps/web/.env.production
-          echo "SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" >> ./apps/web/.env.production
-          echo "MAILER_PROVIDER=${{ secrets.MAILER_PROVIDER }}" >> ./apps/web/.env.production
-          echo "RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}" >> ./apps/web/.env.production
-          echo 'EMAIL_SENDER="${{ secrets.EMAIL_SENDER }}"' >> ./apps/web/.env.production
-          echo "CMS_CLIENT=${{ secrets.CMS_CLIENT }}" >> ./apps/web/.env.production
-          echo "NEXT_PUBLIC_CI=${{ secrets.NEXT_PUBLIC_CI }}" >> ./apps/web/.env.production
-          # Add any other required production environment variables here
-          
-      - name: Build the application
-        run: pnpm --filter web build
-
-      - name: Deploy to Server via rsync
-        uses: burnett01/rsync-deployments@6.0.0
-        with:
-          switches: -avzr --delete
-          path: |
-            apps/web/.next
-            apps/web/public
-            node_modules
-            package.json
-            pnpm-lock.yaml
-          remote_path: /home/deployer/your-app/ # 服务器上存放应用的目录
-          remote_host: ${{ secrets.SSH_HOST }}
-          remote_user: ${{ secrets.SSH_USER }}
-          remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Restart application on server
+      - name: Deploy to Server via SSH
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /home/deployer/your-app
-            pnpm install --prod # 只需要安装生产依赖
-            pm2 restart web --update-env || pm2 start "pnpm --filter web start" --name web --update-env
+            # 在服务器上登录到 ACR
+            docker login ${{ env.REGISTRY }} -u ${{ secrets.ACR_USERNAME }} -p ${{ secrets.ACR_PASSWORD }}
+            
+            # 拉取最新的镜像
+            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            
+            # 停止并移除旧的容器（如果存在）
+            docker stop web || true && docker rm web || true
+            
+            # 运行新的容器
+            # 请确保您的服务器上存在环境变量文件，例如 /home/deployer/your-app/.env
+            docker run -d --name web -p 3000:3000 --env-file /home/deployer/your-app/.env --restart always ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
